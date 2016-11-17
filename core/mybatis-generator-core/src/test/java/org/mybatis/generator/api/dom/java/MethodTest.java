@@ -69,6 +69,7 @@ public class MethodTest {
         assertEquals(JavaVisibility.PUBLIC, method.getVisibility());
         assertEquals(true, method.isStatic());
         assertEquals(true, method.isSynchronized());
+        assertEquals(false, method.isDefault());
         assertEquals(true, method.isFinal());
         assertEquals(1, method.getParameters().size());
         assertEquals("t", method.getParameters().get(0).getName());
@@ -180,6 +181,15 @@ public class MethodTest {
     }
 
     @Test
+    public void testSetDefault() {
+
+        Method method = new Method();
+        assertEquals(false, method.isDefault());
+        method.setDefault(true);
+        assertEquals(true, method.isDefault());
+    }
+
+    @Test
     public void testSetSynchronized() {
 
         Method method = new Method();
@@ -206,6 +216,7 @@ public class MethodTest {
         method.setStatic(true);
         method.setSynchronized(true);
         method.setFinal(true);
+        method.setDefault(true);
 
         FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
         listType.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
@@ -232,5 +243,39 @@ public class MethodTest {
                         + "}";
 
         assertEquals(excepted, method.getFormattedContent(0, false, null));
+    }
+
+    @Test
+    public void testGetFormattedContentForInterfaceMethod() {
+
+        Method method = new Method("foo");
+        method.setConstructor(false);
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setStatic(true);
+        method.setSynchronized(true);
+        method.setFinal(true);
+        method.setDefault(true);
+
+        FullyQualifiedJavaType listType = FullyQualifiedJavaType.getNewListInstance();
+        listType.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
+        FullyQualifiedJavaType typeT = new FullyQualifiedJavaType("T");
+
+        FullyQualifiedJavaType comparatorType = new FullyQualifiedJavaType("java.util.Comparator");
+        comparatorType.addTypeArgument(FullyQualifiedJavaType.getStringInstance());
+        FullyQualifiedJavaType typeR = new FullyQualifiedJavaType("R");
+
+        method.addTypeParameter(new TypeParameter("T", Collections.singletonList(listType)));
+        method.addTypeParameter(new TypeParameter("R", Arrays.asList(listType, comparatorType)));
+
+        FullyQualifiedJavaType functionType = new FullyQualifiedJavaType("java.util.Function");
+        functionType.addTypeArgument(typeT);
+        functionType.addTypeArgument(typeR);
+        method.addParameter(new Parameter(typeT, "t"));
+        method.addParameter(new Parameter(functionType, "func"));
+        method.setReturnType(typeR);
+
+        String excepted = "default <T extends List<String>, R extends List<String> & Comparator<String>> R foo(T t, Function<T, R> func);";
+
+        assertEquals(excepted, method.getFormattedContent(0, true, null));
     }
 }

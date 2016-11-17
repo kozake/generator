@@ -49,7 +49,10 @@ public class Method extends JavaElement {
 
     /** The exceptions. */
     private List<FullyQualifiedJavaType> exceptions;
-    
+
+    /** The is default. */
+    private boolean isDefault;
+
     /** The is synchronized. */
     private boolean isSynchronized;
     
@@ -99,6 +102,7 @@ public class Method extends JavaElement {
         this.parameters.addAll(original.parameters);
         this.returnType = original.returnType;
         this.isNative = original.isNative;
+        this.isDefault = original.isDefault;
         this.isSynchronized = original.isSynchronized;
     }
 
@@ -192,6 +196,10 @@ public class Method extends JavaElement {
                 sb.append("native "); //$NON-NLS-1$
             } else if (bodyLines.size() == 0) {
                 sb.append("abstract "); //$NON-NLS-1$
+            }
+        } else {
+            if(this.isDefault()) {
+                sb.append("default ");
             }
         }
 
@@ -451,6 +459,25 @@ public class Method extends JavaElement {
      */
     public void setSynchronized(boolean isSynchronized) {
         this.isSynchronized = isSynchronized;
+    }
+
+    /**
+     * Checks if is default.
+     *
+     * @return true, if is default
+     */
+    public boolean isDefault() {
+        return this.isDefault;
+    }
+
+    /**
+     * Sets the default.
+     *
+     * @param isDefault
+     *            the new default
+     */
+    public void setDefault(boolean isDefault) {
+        this.isDefault = isDefault;
     }
 
     /**
